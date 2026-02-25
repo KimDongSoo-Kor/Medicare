@@ -23,6 +23,8 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
     const [activeTab, setActiveTab] = useState<TabType>('RECEIPT');
     const [isGenerating, setIsGenerating] = useState(false);
     const [scale, setScale] = useState(1);
+    // 접속 환경이 모바일인지 여부: 버튼 이름/아이콘 및 공유/다운로드 동작을 결정함
+    const [isMobile, setIsMobile] = useState(false);
 
     // 마우스 드래그 스크롤 상태
     const [isDragging, setIsDragging] = useState(false);
@@ -51,6 +53,13 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
     }, []);
 
     // 마운트 시 + 윈도우 리사이즈 시 자동 fit
+    useEffect(() => {
+        // 접속 환경이 모바일인지 감지 (버튼 이름/동작 분기용)
+        const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+            .test(navigator.userAgent);
+        setIsMobile(mobile);
+    }, []);
+
     useEffect(() => {
         const updateScale = () => setScale(calculateFitScale());
         // 초기 로딩 시 약간의 딜레이 후 계산 (DOM이 그려진 후)
@@ -250,8 +259,11 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
                         disabled={isGenerating}
                         className="flex-1 flex justify-center items-center px-4 md:px-8 py-2.5 sm:py-2 bg-blue-600 text-white text-xs md:text-sm font-semibold rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50 whitespace-nowrap"
                     >
-                        <Share2 size={16} className="mr-2 shrink-0" />
-                        4종 모두 공유
+                        {/* isMobile에 따라 아이콘과 버튼 이름을 다르게 표시 */}
+                        {isMobile
+                            ? <Share2 size={16} className="mr-2 shrink-0" />
+                            : <Download size={16} className="mr-2 shrink-0" />}
+                        {isMobile ? '4종 모두 공유' : '4종 모두 다운로드'}
                     </button>
                 </div>
             </div>
