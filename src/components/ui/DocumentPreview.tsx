@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Download, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
+import { Download, ZoomIn, ZoomOut, Maximize, Share2 } from 'lucide-react';
 import { CaregiverRecord } from '@/types';
 import { AffiliationCertificate } from '../documents/AffiliationCertificate';
 import { UsageCertificate } from '../documents/UsageCertificate';
 import { Receipt } from '../documents/Receipt';
 import { Invoice } from '../documents/Invoice';
-import { generateDocumentImage } from '@/lib/documentGenerator';
+import { generateDocumentImage, getDocumentImageDataUrl } from '@/lib/documentGenerator';
 import { DOCUMENT_DIMENSIONS } from '@/constants';
 
 interface Props {
@@ -138,18 +138,72 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
         }
     };
 
-    const handleDownloadAll = async () => {
+    /**
+     * dataUrl 문자열을 File 객체로 변환하는 헬퍼
+     * 왜: Web Share API는 File[] 배열을 받기 때문에 변환이 필요함
+     */
+    const dataUrlToFile = (dataUrl: string, fileName: string): File => {
+        const [header, base64Data] = dataUrl.split(',');
+        const mimeType = header.match(/:(.*?);/)?.[1] ?? 'image/png';
+        const binary = atob(base64Data);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+            bytes[i] = binary.charCodeAt(i);
+        }
+        return new File([bytes], fileName, { type: mimeType });
+    };
+
+    /**
+     * 4종 서류를 이미지로 변환 후 Web Share API로 공유합니다.
+     * - 모바일(카카오톡 등): navigator.share() 사용 → 공유 시트 열림
+     * - PC 또는 share 미지원: 기존 1장씩 다운로드 방식으로 fallback
+     */
+    const handleShareAll = async () => {
         setIsGenerating(true);
         try {
+            const patientName = data.patientName || '환자';
+            const issueDate = data.issueDate || '발급일';
+
+            // 1단계: 4종 서류를 모두 이미지로 변환
+            const files: File[] = [];
             for (const tab of tabs) {
-                await generateDocumentImage(tab.elementId, {
-                    fileName: `${data.patientName || '환자'}_${tab.label}_${data.issueDate || '발급일'}.png`
+                const fileName = `${patientName}_${tab.label}_${issueDate}.png`;
+                const dataUrl = await getDocumentImageDataUrl(tab.elementId, { backgroundColor: '#ffffff' });
+                files.push(dataUrlToFile(dataUrl, fileName));
+                saveHistory(tab.id);
+            }
+
+            // 2단계: Web Share API 지원 여부 확인 후 공유 or 다운로드
+            const canShare = typeof navigator.share === 'function' &&
+                navigator.canShare && navigator.canShare({ files });
+
+            if (canShare) {
+                // 모바일 환경 (카카오톡, 갤러리 앱 등으로 공유)
+                await navigator.share({
+                    title: `${patientName} 간병 서류 4종`,
+                    text: `${patientName}님 간병 서류 4종 (영수증, 사용확인서, 소속확인서, 청구서)`,
+                    files,
                 });
-                saveHistory(tab.id); // 각각 성공 시 이력 저장
-                await new Promise(resolve => setTimeout(resolve, 500));
+            } else {
+                // PC 또는 share 미지원 환경: 개별 다운로드 fallback
+                for (const file of files) {
+                    const objectUrl = URL.createObjectURL(file);
+                    const link = document.createElement('a');
+                    link.href = objectUrl;
+                    link.download = file.name;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    setTimeout(() => URL.revokeObjectURL(objectUrl), 3000);
+                    await new Promise(resolve => setTimeout(resolve, 800));
+                }
             }
         } catch (err) {
-            alert('전체 다운로드 중 일부 오류가 발생했습니다.');
+            // 사용자가 공유 취소한 경우는 에러 아님
+            if (err instanceof Error && err.name !== 'AbortError') {
+                console.error(err);
+                alert('공유 중 오류가 발생했습니다.');
+            }
         } finally {
             setIsGenerating(false);
         }
@@ -184,12 +238,12 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
                         현재 서류 다운로드
                     </button>
                     <button
-                        onClick={handleDownloadAll}
+                        onClick={handleShareAll}
                         disabled={isGenerating}
                         className="flex-1 flex justify-center items-center px-4 md:px-8 py-2.5 sm:py-2 bg-blue-600 text-white text-xs md:text-sm font-semibold rounded-lg hover:bg-blue-500 transition-colors disabled:opacity-50 whitespace-nowrap"
                     >
-                        <Download size={16} className="mr-2 shrink-0" />
-                        4종 모두 다운로드
+                        <Share2 size={16} className="mr-2 shrink-0" />
+                        4종 모두 공유
                     </button>
                 </div>
             </div>
