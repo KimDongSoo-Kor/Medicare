@@ -155,8 +155,9 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
 
     /**
      * 4종 서류를 이미지로 변환 후 Web Share API로 공유합니다.
-     * - 모바일(카카오톡 등): navigator.share() 사용 → 공유 시트 열림
-     * - PC 또는 share 미지원: 기존 1장씩 다운로드 방식으로 fallback
+     * - 모바일(Android/iOS): navigator.share() 사용 → 카카오톡 등 공유 시트 열림
+     * - 데스크탑: Chrome도 canShare()가 true지만 파일 공유 시 오류 다이얼로그가 뜨므로
+     *   userAgent로 모바일 여부를 먼저 판단하여 데스크탑은 바로 다운로드 처리
      */
     const handleShareAll = async () => {
         setIsGenerating(true);
@@ -173,19 +174,26 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
                 saveHistory(tab.id);
             }
 
-            // 2단계: Web Share API 지원 여부 확인 후 공유 or 다운로드
-            const canShare = typeof navigator.share === 'function' &&
-                navigator.canShare && navigator.canShare({ files });
+            // 2단계: 실제 모바일 환경인지 userAgent로 판단
+            // 왜: 데스크탑 Chrome도 navigator.canShare()가 true를 반환하지만
+            //     파일 공유 시 "다시 시도하세요" 오류 다이얼로그가 뜨는 문제가 있음
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
+                .test(navigator.userAgent);
 
-            if (canShare) {
-                // 모바일 환경 (카카오톡, 갤러리 앱 등으로 공유)
+            const canMobileShare = isMobile &&
+                typeof navigator.share === 'function' &&
+                navigator.canShare &&
+                navigator.canShare({ files });
+
+            if (canMobileShare) {
+                // 모바일 환경: 카카오톡, 갤러리 앱 등 공유 시트 열림
                 await navigator.share({
                     title: `${patientName} 간병 서류 4종`,
                     text: `${patientName}님 간병 서류 4종 (영수증, 사용확인서, 소속확인서, 청구서)`,
                     files,
                 });
             } else {
-                // PC 또는 share 미지원 환경: 개별 다운로드 fallback
+                // 데스크탑 또는 share 미지원 환경: 1장씩 자동 다운로드
                 for (const file of files) {
                     const objectUrl = URL.createObjectURL(file);
                     const link = document.createElement('a');
