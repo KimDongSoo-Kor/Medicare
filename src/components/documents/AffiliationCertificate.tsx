@@ -42,6 +42,10 @@ export const AffiliationCertificate: React.FC<Props> = ({ data }) => {
                 height: `${DOCUMENT_DIMENSIONS.height}px`,
                 boxShadow: '0 0 10px rgba(0,0,0,0.1)',
                 fontFamily: '"Malgun Gothic", "맑은 고딕", sans-serif',
+                // 다크모드 배경 검정 차단
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                colorScheme: 'only light' as unknown as 'light',
             }}
             id="affiliation-certificate"
         >

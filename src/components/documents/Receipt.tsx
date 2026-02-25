@@ -56,6 +56,10 @@ export const Receipt: React.FC<Props> = ({ data }) => {
                 boxShadow: '0 0 10px rgba(0,0,0,0.1)',
                 fontFamily: 'sans-serif',
                 fontSize: '13px',
+                // 다크모드에서 배경이 검게 변하는 것을 인라인에서도 차단
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                colorScheme: 'only light' as unknown as 'light',
             }}
             id="receipt-certificate"
         >

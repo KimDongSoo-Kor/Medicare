@@ -16,6 +16,10 @@ export const UsageCertificate: React.FC<Props> = ({ data }) => {
                 boxShadow: '0 0 10px rgba(0,0,0,0.1)',
                 fontFamily: 'sans-serif',
                 fontSize: '14px',
+                // 다크모드 배경 검정 차단
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                colorScheme: 'only light' as unknown as 'light',
             }}
             id="usage-certificate"
         >

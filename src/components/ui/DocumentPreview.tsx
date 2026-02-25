@@ -251,7 +251,10 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
                         // 축소 시에도 스크롤 영역이 올바르게 계산되도록 실제 크기 지정
                         width: DOCUMENT_DIMENSIONS.width,
                         height: DOCUMENT_DIMENSIONS.height,
-                        pointerEvents: isDragging ? 'none' : 'auto' // 드래그 중 내부 텍스트 선택 방지
+                        pointerEvents: isDragging ? 'none' : 'auto', // 드래그 중 내부 텍스트 선택 방지
+                        // 서류 래퍼 레벨에서 다크모드 차단 (이중 보호)
+                        backgroundColor: '#ffffff',
+                        colorScheme: 'only light' as unknown as 'light',
                     }}
                 >
                     {/* 모든 서류를 렌더하되 활성 탭만 표시 

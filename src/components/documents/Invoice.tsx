@@ -20,6 +20,10 @@ export const Invoice: React.FC<Props> = ({ data }) => {
                 boxShadow: '0 0 10px rgba(0,0,0,0.1)',
                 fontFamily: 'sans-serif',
                 fontSize: '16px', // 일반 영수증보다 글씨를 다소 크게 설정
+                // 다크모드 배경 검정 차단
+                backgroundColor: '#ffffff',
+                color: '#000000',
+                colorScheme: 'only light' as unknown as 'light',
             }}
             id="invoice-certificate"
         >

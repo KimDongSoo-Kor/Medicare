@@ -84,25 +84,35 @@
 
 .dark {
   /* Premium Dark Slate/Blue Palette */
-  --background: oklch(0.15 0.02 240); /* Deep rich slate-blue background */
-  --foreground: oklch(0.98 0 0); /* Crisp white text */
-  --card: oklch(0.18 0.02 245); /* Slightly lighter slate for cards */
+  --background: oklch(0.15 0.02 240);
+  /* Deep rich slate-blue background */
+  --foreground: oklch(0.98 0 0);
+  /* Crisp white text */
+  --card: oklch(0.18 0.02 245);
+  /* Slightly lighter slate for cards */
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.18 0.02 245);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.65 0.18 250); /* Premium vibrant blue accent */
+  --primary: oklch(0.65 0.18 250);
+  /* Premium vibrant blue accent */
   --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.25 0.03 245); /* Subtle dark blue/gray for secondary areas */
+  --secondary: oklch(0.25 0.03 245);
+  /* Subtle dark blue/gray for secondary areas */
   --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.22 0.02 245);
-  --muted-foreground: oklch(0.70 0.01 245); /* Soft, readable gray for hints/labels */
+  --muted-foreground: oklch(0.70 0.01 245);
+  /* Soft, readable gray for hints/labels */
   --accent: oklch(0.25 0.03 245);
   --accent-foreground: oklch(0.98 0 0);
-  --destructive: oklch(0.60 0.18 20); /* Adjusted refined red */
+  --destructive: oklch(0.60 0.18 20);
+  /* Adjusted refined red */
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.25 0.03 245); /* Subtle borders to separate sections softly */
-  --input: oklch(0.25 0.03 245); /* Same as borders for unity */
-  --ring: oklch(0.65 0.18 250); /* Ring color matches the primary accent */
+  --border: oklch(0.25 0.03 245);
+  /* Subtle borders to separate sections softly */
+  --input: oklch(0.25 0.03 245);
+  /* Same as borders for unity */
+  --ring: oklch(0.65 0.18 250);
+  /* Ring color matches the primary accent */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
@@ -122,7 +132,36 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/*
+ * ===== 서류 출력물 다크모드 완전 차단 =====
+ * 이유: OS/브라우저 다크모드가 bg-white(Tailwind) 클래스를 무시하고
+ *      배경을 검정으로 강제 변환하는 문제를 원천 차단하기 위함.
+ * - color-scheme: only light → 브라우저에게 "이 요소는 반드시 라이트 모드"를 선언
+ * - forced-color-adjust: none → 강제 색상 모드(Forced Colors) 비활성화
+ * - background-color/color → 인라인보다 높은 !important로 보장
+ */
+#usage-certificate,
+#affiliation-certificate,
+#receipt-certificate,
+#invoice-certificate {
+  color-scheme: only light !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  forced-color-adjust: none !important;
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* 자식 요소들도 동일하게 적용 (forced-color-adjust는 상속되지 않음) */
+#usage-certificate *,
+#affiliation-certificate *,
+#receipt-certificate *,
+#invoice-certificate * {
+  forced-color-adjust: none !important;
 }
