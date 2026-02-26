@@ -20,9 +20,9 @@ export default function RootLayout({
         <header className="bg-background/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50 transition-all duration-300">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-5 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
             <div className="flex items-center gap-3">
-              <div className="relative inline-flex items-center h-[90px] md:h-[100px] drop-shadow-sm transition-transform hover:scale-105">
+              <div className="relative inline-flex items-center h-[120px] md:h-[100px] drop-shadow-sm transition-transform hover:scale-105">
                 <img src="/logo.png" alt="로고" className="h-full w-auto object-contain opacity-0" crossOrigin="anonymous" />
-                <div className="absolute inset-0 bg-[#1A93D2]" style={{ WebkitMask: 'url(/logo.png) no-repeat center / contain', mask: 'url(/logo.png) no-repeat center / contain' }} />
+                <div className="absolute inset-0 bg-[#38bdf8] md:bg-[#1A93D2]" style={{ WebkitMask: 'url(/logo.png) no-repeat center / contain', mask: 'url(/logo.png) no-repeat center / contain' }} />
               </div>
               <h1 className="text-xl font-bold tracking-tight text-foreground hidden sm:block">
                 <a href="/" className="hover:text-primary transition-colors duration-200">간병인 서류 자동 발급 시스템</a>
