@@ -52,11 +52,12 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
         return Math.min(scaleX, scaleY, 1); // 최대 1배(원본)까지만
     }, []);
 
-    // 마운트 시 + 윈도우 리사이즈 시 자동 fit
     useEffect(() => {
         // 접속 환경이 모바일인지 감지 (버튼 이름/동작 분기용)
-        const mobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
-            .test(navigator.userAgent);
+        // 데스크탑 크롬 개발자 도구나 특정 윈도우 환경에서 userAgent로 모바일을 판별하는 것은 부정확할 수 있으므로
+        // 터치 기기 등 미디어 쿼리를 기반으로 모바일 환경을 판단합니다.
+        const mobile = window.matchMedia("(any-pointer: coarse)").matches ||
+            /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         setIsMobile(mobile);
     }, []);
 
@@ -186,10 +187,10 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
             // 2단계: 실제 모바일 환경인지 userAgent로 판단
             // 왜: 데스크탑 Chrome도 navigator.canShare()가 true를 반환하지만
             //     파일 공유 시 "다시 시도하세요" 오류 다이얼로그가 뜨는 문제가 있음
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i
-                .test(navigator.userAgent);
+            const isMobileEnv = window.matchMedia("(any-pointer: coarse)").matches ||
+                /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
-            const canMobileShare = isMobile &&
+            const canMobileShare = isMobileEnv &&
                 typeof navigator.share === 'function' &&
                 navigator.canShare &&
                 navigator.canShare({ files });
