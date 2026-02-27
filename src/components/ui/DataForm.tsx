@@ -33,8 +33,10 @@ export const DataForm: React.FC<Props> = ({ data, onChange }) => {
             const d1 = new Date(start);
             const d2 = new Date(end);
             if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
-                const diffTime = Math.abs(d2.getTime() - d1.getTime());
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // 당일 포함이면 +1 (시작일, 종료일 모두 포함)
+                const utc1 = Date.UTC(d1.getFullYear(), d1.getMonth(), d1.getDate());
+                const utc2 = Date.UTC(d2.getFullYear(), d2.getMonth(), d2.getDate());
+                const diffTime = Math.abs(utc2 - utc1);
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1; // 당일 포함이면 +1 (시작일, 종료일 모두 포함)
                 onChange('totalDays', diffDays);
 
                 // 일당이 있으면 총액도 계산

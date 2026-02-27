@@ -67,6 +67,18 @@ export default function Home() {
       setData(prev => {
         const merged = { ...prev, ...result.data };
 
+        // 날짜가 둘 다 있으면 총 일수를 강제 자동 계산 (시작일, 종료일 모두 1일로 포함)
+        if (merged.startDate && merged.endDate) {
+          const d1 = new Date(merged.startDate);
+          const d2 = new Date(merged.endDate);
+          if (!isNaN(d1.getTime()) && !isNaN(d2.getTime())) {
+            const utc1 = Date.UTC(d1.getFullYear(), d1.getMonth(), d1.getDate());
+            const utc2 = Date.UTC(d2.getFullYear(), d2.getMonth(), d2.getDate());
+            const diffTime = Math.abs(utc2 - utc1);
+            merged.totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+          }
+        }
+
         // 텍스트/이미지에서 추출된 금액(dailyRate)과 계산된 총 일수(totalDays) 기반으로 총액 강제 세팅
         if (merged.dailyRate && merged.totalDays) {
           merged.totalAmount = merged.dailyRate * merged.totalDays;
