@@ -46,7 +46,7 @@ export const Invoice: React.FC<Props> = ({ data }) => {
                 <div className="space-y-4 mb-8">
                     <p className="flex justify-between">
                         <span className="text-gray-600 font-bold w-24">계좌번호</span>
-                        <span className="font-bold tracking-wider">카카오뱅크 3333-3093-7046</span>
+                        <span className="font-bold tracking-wider">카카오뱅크 3333-3093-37046</span>
                     </p>
                     <p className="flex justify-between">
                         <span className="text-gray-600 font-bold w-24">예금주</span>
