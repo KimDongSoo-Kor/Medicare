@@ -49,8 +49,8 @@ export async function analyzeCaregiverData(
 }
 
 추가 조건:
-- 날짜는 반드시 YYYY-MM-DD 형식으로 통일하세요.
-- 주민등록번호 형식(YYMMDD-XXXXXXX) 이 있을 경우 protectorIdNumber에 추출하세요.
+- 날짜는 반드시 YYYY-MM-DD 형식으로 통일하세요. 만약 연도(YYYY)가 생략되어 '2.27'과 같이 월/일만 입력된 경우, 발급일자의 연도 또는 현재 연도를 자동으로 추가하여 'YYYY-02-27' 형식으로 완성하세요.
+- 주민등록번호 형식(YYMMDD-XXXXXXX) 이 있을 경우 protectorIdNumber에 추출하세요. 텍스트에 줄바꿈이나 공백이 있어도 유연하게 연결(예: '보호자주민번호 뒤1자리까지:\\n541109-2' 라면 '541109-2******'로)하여 추출하세요.
 - 입력 텍스트나 이미지에서 '보호자'라고 지칭된 사람은 '간병인'과 동일 인물이므로, 보호자의 이름과 생년월일을 각각 caregiverName, caregiverBirthDate로 추출하세요.
 - 텍스트나 이미지에 나와 있는 '금액'은 무조건 1일 간병비(일당)를 뜻합니다. 따라서 해당 금액은 **반드시 dailyRate 필드**에 넣으세요. totalAmount는 0으로 두어도 됩니다.
 - 금액(dailyRate, totalAmount)은 천단위 콤마나 화폐 단위를 제거한 순수 숫자만 입력하세요.
