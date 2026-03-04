@@ -137,9 +137,21 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
 
         setIsGenerating(true);
         try {
-            await generateDocumentImage(currentTab.elementId, {
-                fileName: `${data.patientName || '환자'}_${currentTab.label}_${data.issueDate || '발급일'}.png`
-            });
+            if (activeTab === 'RECEIPT') {
+                const receiptPages = data.totalDays ? Math.max(1, Math.ceil(data.totalDays / 15)) : 1;
+                for (let i = 0; i < receiptPages; i++) {
+                    const pageId = `receipt-certificate-page-${i}`;
+                    const suffix = receiptPages > 1 ? `_${i + 1}p` : '';
+                    await generateDocumentImage(pageId, {
+                        fileName: `${data.patientName || '환자'}_${currentTab.label}${suffix}_${data.issueDate || '발급일'}.png`
+                    });
+                    await new Promise(resolve => setTimeout(resolve, 500)); // slight delay between downloads
+                }
+            } else {
+                await generateDocumentImage(currentTab.elementId, {
+                    fileName: `${data.patientName || '환자'}_${currentTab.label}_${data.issueDate || '발급일'}.png`
+                });
+            }
             saveHistory(currentTab.id); // 성공 시 이력 저장
         } catch (err) {
             alert('다운로드 중 오류가 발생했습니다.');
@@ -178,9 +190,20 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
             // 1단계: 4종 서류를 모두 이미지로 변환
             const files: File[] = [];
             for (const tab of tabs) {
-                const fileName = `${patientName}_${tab.label}_${issueDate}.png`;
-                const dataUrl = await getDocumentImageDataUrl(tab.elementId, { backgroundColor: '#ffffff' });
-                files.push(dataUrlToFile(dataUrl, fileName));
+                if (tab.id === 'RECEIPT') {
+                    const receiptPages = data.totalDays ? Math.max(1, Math.ceil(data.totalDays / 15)) : 1;
+                    for (let i = 0; i < receiptPages; i++) {
+                        const pageId = `receipt-certificate-page-${i}`;
+                        const suffix = receiptPages > 1 ? `_${i + 1}p` : '';
+                        const fileName = `${patientName}_${tab.label}${suffix}_${issueDate}.png`;
+                        const dataUrl = await getDocumentImageDataUrl(pageId, { backgroundColor: '#ffffff' });
+                        files.push(dataUrlToFile(dataUrl, fileName));
+                    }
+                } else {
+                    const fileName = `${patientName}_${tab.label}_${issueDate}.png`;
+                    const dataUrl = await getDocumentImageDataUrl(tab.elementId, { backgroundColor: '#ffffff' });
+                    files.push(dataUrlToFile(dataUrl, fileName));
+                }
                 saveHistory(tab.id);
             }
 
@@ -226,11 +249,6 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
             setIsGenerating(false);
         }
     };
-
-    const receiptPages = data.totalDays ? Math.max(1, Math.ceil(data.totalDays / 15)) : 1;
-    const dynamicHeight = activeTab === 'RECEIPT'
-        ? (DOCUMENT_DIMENSIONS.height * receiptPages) + (32 * (receiptPages - 1)) // 32px gap between pages
-        : DOCUMENT_DIMENSIONS.height;
 
     return (
         <div className="bg-slate-900 rounded-2xl shadow-lg border border-slate-800 flex flex-col h-full overflow-hidden">
@@ -332,7 +350,7 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
                         transformOrigin: 'top center',
                         // 축소 시에도 스크롤 영역이 올바르게 계산되도록 실제 크기 지정
                         width: DOCUMENT_DIMENSIONS.width,
-                        height: dynamicHeight,
+                        height: DOCUMENT_DIMENSIONS.height,
                         pointerEvents: isDragging ? 'none' : 'auto', // 드래그 중 내부 텍스트 선택 방지
                         // 서류 래퍼 레벨에서 다크모드 차단 (이중 보호)
                         backgroundColor: '#ffffff',

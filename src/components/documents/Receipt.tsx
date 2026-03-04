@@ -55,7 +55,7 @@ export const Receipt: React.FC<Props> = ({ data }) => {
     if (chunks.length === 0) chunks.push([]); // Ensure at least one page
 
     return (
-        <div id="receipt-certificate" className="flex flex-col" style={{ gap: '2rem' }}>
+        <div className="flex flex-col" style={{ gap: '2rem' }}>
             {chunks.map((chunkRows, pageIndex) => {
                 const isLastPage = pageIndex === chunks.length - 1;
                 const chunkQty = chunkRows.length;
@@ -64,6 +64,7 @@ export const Receipt: React.FC<Props> = ({ data }) => {
                 return (
                     <div
                         key={pageIndex}
+                        id={`receipt-certificate-page-${pageIndex}`}
                         className="bg-white text-black p-10 relative flex flex-col shrink-0"
                         style={{
                             width: `${DOCUMENT_DIMENSIONS.width}px`,
