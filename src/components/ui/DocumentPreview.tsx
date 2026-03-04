@@ -227,8 +227,15 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
         }
     };
 
+    const receiptPages = data.totalDays ? Math.max(1, Math.ceil(data.totalDays / 15)) : 1;
+    const dynamicHeight = activeTab === 'RECEIPT'
+        ? (DOCUMENT_DIMENSIONS.height * receiptPages) + (32 * (receiptPages - 1)) // 32px gap between pages
+        : DOCUMENT_DIMENSIONS.height;
+
     return (
         <div className="bg-slate-900 rounded-2xl shadow-lg border border-slate-800 flex flex-col h-full overflow-hidden">
+            {/* 상단 탭 + 다운로드 버튼 ... (unchanged) */}
+
             {/* 상단 탭 + 다운로드 버튼 */}
             <div className="p-4 border-b border-slate-800 bg-slate-900/50 flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-5">
                 {/* 서류 선택 2x2 그리드 버튼 */}
@@ -325,7 +332,7 @@ export const DocumentPreview: React.FC<Props> = ({ data }) => {
                         transformOrigin: 'top center',
                         // 축소 시에도 스크롤 영역이 올바르게 계산되도록 실제 크기 지정
                         width: DOCUMENT_DIMENSIONS.width,
-                        height: DOCUMENT_DIMENSIONS.height,
+                        height: dynamicHeight,
                         pointerEvents: isDragging ? 'none' : 'auto', // 드래그 중 내부 텍스트 선택 방지
                         // 서류 래퍼 레벨에서 다크모드 차단 (이중 보호)
                         backgroundColor: '#ffffff',
